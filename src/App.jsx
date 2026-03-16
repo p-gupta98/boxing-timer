@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function App() {
 
   const [timeLeft, setTimeLeft] = useState(10);
+  const ref = useRef();
 
   useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
+    ref.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === 0) {
+          clearInterval(ref.current);
+          return 0;
+        }
+        return prev - 1});
     }, 1000);
 
     // Cleanup 
     return () => {
-      clearInterval(timerInterval);
+      clearInterval(ref.current);
     }
 
   }, []);
