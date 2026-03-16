@@ -1,9 +1,27 @@
+import { useState, useEffect } from 'react';
+
 export default function App() {
+
+  const [timeLeft, setTimeLeft] = useState(10);
+
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    // Cleanup 
+    return () => {
+      clearInterval(timerInterval);
+    }
+
+  }, []);
+
   const size = 600;
   const centerViewBox = size / 2;
   const radius = centerViewBox / 3;
   const circumference = 2 * Math.PI * radius;
-  const progress = 0.75;
+  const round = 10;
+  const progress = timeLeft / round;
   const offset = circumference * (1 - progress);
   const cy = centerViewBox - 100;
   
