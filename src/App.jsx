@@ -3,13 +3,17 @@ import { useState, useEffect, useRef } from 'react';
 export default function App() {
 
   const setTimerSeconds = 10;
+  const totalRounds = 10;
 
+  const [timerPhase, setTimerPhase] = useState("idle");
+  const [currentRound, setCurrentRound] = useState(1);
   const [timeLeft, setTimeLeft] = useState(setTimerSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const ref = useRef();
 
   function start() {
     setIsRunning(true);
+    setTimerPhase("fight");
   }
 
   function pause() {
@@ -29,6 +33,19 @@ export default function App() {
       setTimeLeft((prev) => {
         if (prev === 0) {
           clearInterval(ref.current);
+          if (currentRound === totalRounds) {
+            setTimerPhase("done");
+            reset();
+          }
+          if (timerPhase === "fight") {
+            setTimerPhase("rest");
+            setCurrentRound(prev => prev + 1);
+          }
+
+          if (timerPhase === "rest") {
+            setTimerPhase("fight");
+          }
+          
           return 0;
         }
         return prev - 1});
