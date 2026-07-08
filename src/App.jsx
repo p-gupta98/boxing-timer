@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 export default function App() {
 
   const fightDuration = 10;
-  const totalRounds = 10;
+  const totalRounds = 3;
   const restDuration = 5;
 
   const [timerPhase, setTimerPhase] = useState("idle");
@@ -104,6 +104,8 @@ export default function App() {
         <circle r={radius} cx={centerViewBox} cy={cy} fill="none" stroke="red" strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} 
         transform={`rotate(-90, ${centerViewBox}, ${cy})`}/> 
         <text x={centerViewBox} y={cy} textAnchor="middle">{timeLeft}</text>
+        <text x ={centerViewBox} y={cy + 30} textAnchor='middle'>Round {currentRound}/{totalRounds}</text>
+        <text x ={centerViewBox} y={cy + 50} textAnchor='middle'>{timerPhase}</text>
       </svg>
     </div>
   )
