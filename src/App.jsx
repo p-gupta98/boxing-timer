@@ -43,10 +43,11 @@ export default function App() {
       clearInterval(ref.current)
       ref.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev === 0) {
-          clearInterval(ref.current);
+        if (prev === 1) {
+          console.log("transitioning from:", phaseRef.current, "time:", Date.now());
           // When the last round's fight timer has ended
           if (roundRef.current === totalRounds && phaseRef.current == "fight") {
+            clearInterval(ref.current);
             // Move to the done phase - reset timer completely
             setTimerPhase("done");
             phaseRef.current = "done";
@@ -60,14 +61,14 @@ export default function App() {
             setCurrentRound(prev => prev + 1);
             roundRef.current = roundRef.current + 1;
             // Set the timer to rest duration
-            setTimeLeft(restDuration);
+            return restDuration;
           }
           // If the timer is in the rest phase
           else if (phaseRef.current === "rest") {
             // Set it to fight phase
             setTimerPhase("fight");
             phaseRef.current = "fight";
-            setTimeLeft(fightDuration);
+            return fightDuration;
           }
           return 0;
         }
