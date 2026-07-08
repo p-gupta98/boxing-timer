@@ -2,18 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function App() {
 
-  const setTimerSeconds = 10;
+  const fightDuration = 10;
   const totalRounds = 10;
+  const restDuration = 5;
 
   const [timerPhase, setTimerPhase] = useState("idle");
   const [currentRound, setCurrentRound] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(setTimerSeconds);
+  const [timeLeft, setTimeLeft] = useState(fightDuration);
   const [isRunning, setIsRunning] = useState(false);
   const ref = useRef();
+  const phaseRef = useRef("idle");
+  const roundRef = useRef(1);
 
   function start() {
     setIsRunning(true);
     setTimerPhase("fight");
+    phaseRef.current = "fight";
   }
 
   function pause() {
@@ -23,7 +27,15 @@ export default function App() {
   function reset() {
     setIsRunning(false);
     // reset the timer
-    setTimeLeft(setTimerSeconds);
+    setTimeLeft(fightDuration);
+
+    // reset the round to 1
+    setCurrentRound(1);
+    roundRef.current = 1;
+
+    // reset the phase to idle
+    setTimerPhase("idle");
+    phaseRef.current = "idle";
   }
 
   useEffect(() => {
@@ -33,19 +45,30 @@ export default function App() {
       setTimeLeft((prev) => {
         if (prev === 0) {
           clearInterval(ref.current);
-          if (currentRound === totalRounds) {
+          // When the last round's fight timer has ended
+          if (roundRef.current === totalRounds && phaseRef.current == "fight") {
+            // Move to the done phase - reset timer completely
             setTimerPhase("done");
+            phaseRef.current = "done";
             reset();
           }
-          if (timerPhase === "fight") {
+          // If it's still not the last round
+          else if (phaseRef.current === "fight") {
+            // Move to the rest phase
             setTimerPhase("rest");
+            phaseRef.current = "rest";
             setCurrentRound(prev => prev + 1);
+            roundRef.current = roundRef.current + 1;
+            // Set the timer to rest duration
+            setTimeLeft(restDuration);
           }
-
-          if (timerPhase === "rest") {
+          // If the timer is in the rest phase
+          else if (phaseRef.current === "rest") {
+            // Set it to fight phase
             setTimerPhase("fight");
+            phaseRef.current = "fight";
+            setTimeLeft(fightDuration);
           }
-          
           return 0;
         }
         return prev - 1});
@@ -64,8 +87,8 @@ export default function App() {
   const centerViewBox = size / 2;
   const radius = centerViewBox / 3;
   const circumference = 2 * Math.PI * radius;
-  const round = 10;
-  const progress = timeLeft / round;
+  const totalDuration = timerPhase === "rest" ? restDuration : fightDuration;
+  const progress = timeLeft / totalDuration;
   const offset = circumference * (1 - progress);
   const cy = centerViewBox - 100;
   
