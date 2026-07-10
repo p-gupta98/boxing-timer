@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
+const audioContext = new AudioContext();
+
 export default function App() {
 
   const fightDuration = 10;
@@ -13,11 +15,34 @@ export default function App() {
   const ref = useRef();
   const phaseRef = useRef("idle");
   const roundRef = useRef(1);
+  const bellRef = useRef(audioContext);
+
+  function playBell() {
+
+    // To make sure the bell plays after every reset
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+
+    const gainNode = audioContext.createGain();
+    const osci = audioContext.createOscillator();
+
+    // Specify the frequency etc for the bell sounds
+    osci.type = "triangle";
+    osci.frequency.setValueAtTime(880, audioContext.currentTime);
+    osci.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+    osci.start();
+    osci.stop(audioContext.currentTime + 0.5);
+  }
 
   function start() {
     setIsRunning(true);
     setTimerPhase("fight");
     phaseRef.current = "fight";
+    playBell();
   }
 
   function pause() {
@@ -51,6 +76,10 @@ export default function App() {
             // Move to the done phase - reset timer completely
             setTimerPhase("done");
             phaseRef.current = "done";
+            // play bell sounds thrice when all rounds are done
+            playBell();
+            setTimeout(() => playBell(), 300);
+            setTimeout(() => playBell(), 600);
             reset();
           }
           // If it's still not the last round
@@ -60,6 +89,9 @@ export default function App() {
             phaseRef.current = "rest";
             setCurrentRound(prev => prev + 1);
             roundRef.current = roundRef.current + 1;
+            // PLay bell sound twice when fight phase finishes
+            playBell();
+            setTimeout(() => playBell(), 300);
             // Set the timer to rest duration
             return restDuration;
           }
@@ -68,6 +100,8 @@ export default function App() {
             // Set it to fight phase
             setTimerPhase("fight");
             phaseRef.current = "fight";
+            // Play bell sound once when fight phase starts
+            playBell();
             return fightDuration;
           }
           return 0;
