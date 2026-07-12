@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const audioContext = new AudioContext();
+
 
 export default function App() {
 
@@ -15,33 +15,37 @@ export default function App() {
   const ref = useRef();
   const phaseRef = useRef("idle");
   const roundRef = useRef(1);
-  const bellRef = useRef(audioContext);
+  const bellRef = useRef(null);
 
   function playBell() {
 
     // To make sure the bell plays after every reset
-    if (audioContext.state === 'suspended') {
-      audioContext.resume();
+    if (bellRef.current.state === 'suspended') {
+      bellRef.current.resume();
     }
 
-    const gainNode = audioContext.createGain();
-    const osci = audioContext.createOscillator();
+    const gainNode = bellRef.current.createGain();
+    const osci = bellRef.current.createOscillator();
 
     // Specify the frequency etc for the bell sounds
     osci.type = "triangle";
-    osci.frequency.setValueAtTime(880, audioContext.currentTime);
+    osci.frequency.setValueAtTime(880, bellRef.current.currentTime);
     osci.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    gainNode.gain.setValueAtTime(1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+    gainNode.connect(bellRef.current.destination);
+    gainNode.gain.setValueAtTime(1, bellRef.current.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, bellRef.current.currentTime + 0.5);
     osci.start();
-    osci.stop(audioContext.currentTime + 0.5);
+    osci.stop(bellRef.current.currentTime + 0.5);
   }
 
   function start() {
     setIsRunning(true);
     setTimerPhase("fight");
     phaseRef.current = "fight";
+    if (!bellRef.current) {
+      bellRef.current = new AudioContext();
+    }
+    
     playBell();
   }
 
