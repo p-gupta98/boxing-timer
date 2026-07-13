@@ -64,10 +64,6 @@ export default function App() {
   }
 
   const [state, dispatch] = useReducer(reducer, initState);
-
-  const [timerPhase, setTimerPhase] = useState("idle");
-  const [currentRound, setCurrentRound] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(fightDuration);
   const [isRunning, setIsRunning] = useState(false);
   const ref = useRef();
   const bellRef = useRef(null);
