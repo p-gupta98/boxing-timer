@@ -95,7 +95,6 @@ export default function App() {
     if (!bellRef.current) {
       bellRef.current = new AudioContext();
     }
-    playBell();
   }
 
   function pause() {
@@ -121,6 +120,21 @@ export default function App() {
       }
     }
   }, [isRunning]);
+
+  useEffect(() => {
+  if (state.phase === "fight") {
+    playBell();
+  } else if (state.phase === "rest") {
+    playBell();
+    setTimeout(() => playBell(), 300);
+  } else if (state.phase === "done") {
+    playBell();
+    setTimeout(() => playBell(), 300);
+    setTimeout(() => playBell(), 600);
+    setIsRunning(false);
+    setTimeout(() => dispatch({ type: "RESET" }), 1000);
+  }
+}, [state.phase]);
 
   
 
