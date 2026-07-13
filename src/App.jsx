@@ -91,7 +91,10 @@ export default function App() {
 
   function start() {
     setIsRunning(true);
-    dispatch({type: "START"});
+    if (state.phase == "idle") {
+      dispatch({type: "START"});
+    }
+    
     if (!bellRef.current) {
       bellRef.current = new AudioContext();
     }
