@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useReducer } from 'react';
 
 
 
@@ -7,6 +7,63 @@ export default function App() {
   const fightDuration = 10;
   const totalRounds = 3;
   const restDuration = 5;
+
+  const initState = {
+    phase: "idle",
+    round: 1,
+    timeLeft: fightDuration
+  };
+
+  function reducer(state, action) {
+    switch(action.type) {
+      case "START":
+        return {
+          ...state,
+          phase: "fight",
+          round: 1,
+          timeLeft: fightDuration
+        };
+
+      case "PAUSE":
+        return state;
+        
+      case "RESET":
+        return {
+          ...state,
+          phase: "idle",
+          round: 1,
+          timeLeft: fightDuration
+        };
+        
+      case "TICK":
+        // Normal ticking
+        if(state.timeLeft > 1) {
+          return {...state, timeLeft: state.timeLeft - 1};
+        }
+
+        // Fight to done
+        if (state.phase == "fight" && state.round == totalRounds) {
+          return {...state, phase: "done", round: totalRounds, timeLeft: 0};
+        }
+
+        // Fight to rest
+        if (state.phase == "fight") {
+          return {...state, phase: "rest", timeLeft: restDuration};
+        }
+
+        // Rest to fight
+        if (state.phase == "rest") {
+          return {...state, phase: "fight", round: state.round + 1, timeLeft: fightDuration}
+        }
+
+        return state;
+
+      default:
+        return state;  
+    }
+  }
+
+  const [state, dispatch] = useReducer(reducer, initState);
 
   const [timerPhase, setTimerPhase] = useState("idle");
   const [currentRound, setCurrentRound] = useState(1);
