@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useReducer } from 'react';
 
-
-
 export default function App() {
 
   const fightDuration = 10;
@@ -157,6 +155,10 @@ export default function App() {
       <button type="button" onClick={pause}>Pause</button>
       <button type="reset" onClick={reset}>Reset</button>
       <svg viewBox ={`0 0 ${size} ${size}`} >
+        <g className={`glove glove-${state.phase}`} transform={`translate(${centerViewBox}, ${cy})`}>
+          <ellipse cx="0" cy="0" rx="35" ry="45" />
+          <rect x="-12" y="35" width="24" height="20" rx="6" />
+        </g>
         <circle r={radius} cx={centerViewBox} cy={cy} fill="none" stroke="black" strokeWidth="15" opacity="0.5"/> 
         <circle r={radius} cx={centerViewBox} cy={cy} fill="none" stroke="red" strokeWidth="10" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} 
         transform={`rotate(-90, ${centerViewBox}, ${cy})`}/> 
