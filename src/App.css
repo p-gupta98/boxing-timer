@@ -1,0 +1,45 @@
+
+/* Animation to wiggle the glove */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+/* Animation to bounce the glove up and down */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-15px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-15px); }
+}
+
+.glove-idle {
+  fill: #b03030;
+  opacity: 0.15;
+}
+
+.glove-fight {
+  fill: #e60000;
+  opacity: 0.35;
+  animation: wiggle 0.1s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.glove-rest {
+  fill: #2060c0;
+  opacity: 0.35;
+}
+
+.glove-done {
+  fill: #e60000;
+  opacity: 0.35;
+  animation: bounce 0.5s ease-in-out 2;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.paused {
+  animation-play-state: paused;
+}
+
