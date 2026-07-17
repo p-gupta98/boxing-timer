@@ -3,9 +3,9 @@ import './App.css';
 
 export default function App() {
 
-  const fightDuration = 10;
-  const totalRounds = 2;
-  const restDuration = 5;
+  const [fightDuration, setFightDuration] = useState(10);
+  const [totalRounds, setTotalRounds] = useState(3);
+  const [restDuration, setRestDuration] = useState(5);
 
   const initState = {
     phase: "idle",
@@ -33,6 +33,15 @@ export default function App() {
           round: 1,
           timeLeft: fightDuration
         };
+
+      case "SYNC_SETTINGS":
+        if (state.phase === "idle") {
+          return { ...state, timeLeft: action.fightDuration };
+        }
+        if (state.phase === "rest") {
+          return { ...state, timeLeft: action.restDuration };
+        }
+        return state;  
         
       case "TICK":
         // Normal ticking
@@ -107,6 +116,11 @@ export default function App() {
     setIsRunning(false);
     // Dispatch sets all the states in one
     dispatch({type: "RESET"});
+  }
+
+  function handleFightDurationChange(value) {
+    setFightDuration(value);
+    dispatch({ type: "SYNC_SETTINGS", fightDuration: value });
   }
 
   useEffect(() => {
