@@ -121,18 +121,20 @@ export default function App() {
   }
 
   function handleFightDurationChange(value) {
-    setFightDuration(value);
-    dispatch({ type: "SYNC_SETTINGS", fightDuration: value, restDuration });
+    const validatedValue = Math.max(1, value);
+    setFightDuration(validatedValue);
+    dispatch({ type: "SYNC_SETTINGS", fightDuration: validatedValue, restDuration });
   }
 
   function handleRestDurationChange(value) {
-    setRestDuration(value);
-    dispatch({ type: "SYNC_SETTINGS", fightDuration, restDuration: value });
+    const validatedValue = Math.max(1, value);
+    setRestDuration(validatedValue);
+    dispatch({ type: "SYNC_SETTINGS", fightDuration, restDuration: validatedValue });
   }
 
   // Rounds does not need a dispatch - the value is not copied to the state variable
   function handleTotalRoundsChange(value) {
-    setTotalRounds(value);
+    setTotalRounds(Math.max(1, value));
   }
 
   useEffect(() => {
