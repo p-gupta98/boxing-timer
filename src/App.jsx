@@ -6,6 +6,8 @@ export default function App() {
   const [fightDuration, setFightDuration] = useState(10);
   const [totalRounds, setTotalRounds] = useState(3);
   const [restDuration, setRestDuration] = useState(5);
+  // Settings panel visibility
+  const [showSettings, setShowSettings] = useState(false);
 
   const initState = {
     phase: "idle",
@@ -35,13 +37,13 @@ export default function App() {
         };
 
       case "SYNC_SETTINGS":
-        if (state.phase === "idle") {
-          return { ...state, timeLeft: action.fightDuration };
-        }
-        if (state.phase === "rest") {
-          return { ...state, timeLeft: action.restDuration };
-        }
-        return state;  
+      if (state.phase === "idle" || state.phase === "fight") {
+        return { ...state, timeLeft: action.fightDuration };
+      }
+      if (state.phase === "rest") {
+        return { ...state, timeLeft: action.restDuration };
+      }
+      return state; 
         
       case "TICK":
         // Normal ticking
@@ -120,7 +122,17 @@ export default function App() {
 
   function handleFightDurationChange(value) {
     setFightDuration(value);
-    dispatch({ type: "SYNC_SETTINGS", fightDuration: value });
+    dispatch({ type: "SYNC_SETTINGS", fightDuration: value, restDuration });
+  }
+
+  function handleRestDurationChange(value) {
+    setRestDuration(value);
+    dispatch({ type: "SYNC_SETTINGS", fightDuration, restDuration: value });
+  }
+
+  // Rounds does not need a dispatch - the value is not copied to the state variable
+  function handleTotalRoundsChange(value) {
+    setTotalRounds(value);
   }
 
   useEffect(() => {
@@ -165,6 +177,41 @@ export default function App() {
   
   return (
     <div>
+      <button type="button" onClick={() => setShowSettings(prev => !prev)}>☰</button>
+
+      {showSettings && (
+        <div className="settings-panel">
+          <label>
+            Fight duration (sec):
+            <input
+              type="number"
+              value={fightDuration}
+              disabled={isRunning}
+              onChange={(e) => handleFightDurationChange(Number(e.target.value))}
+            />
+          </label>
+
+          <label>
+            Rest duration (sec):
+            <input
+              type="number"
+              value={restDuration}
+              disabled={isRunning}
+              onChange={(e) => handleRestDurationChange(Number(e.target.value))}
+            />
+          </label>
+
+          <label>
+            Rounds:
+            <input
+              type="number"
+              value={totalRounds}
+              disabled={isRunning}
+              onChange={(e) => handleTotalRoundsChange(Number(e.target.value))}
+            />
+          </label>
+        </div>
+      )}
       <h1>Boxing Timer</h1>
       <button type="button" onClick={start}>Start</button>
       <button type="button" onClick={pause}>Pause</button>
