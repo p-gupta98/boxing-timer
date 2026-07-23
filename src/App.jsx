@@ -8,6 +8,7 @@ export default function App() {
   const [restDuration, setRestDuration] = useState(5);
   // Settings panel visibility
   const [showSettings, setShowSettings] = useState(false);
+  const [pendingBell, setPendingBell] = useState(false);
 
   const initState = {
     phase: "idle",
@@ -108,6 +109,17 @@ export default function App() {
     if (!bellRef.current) {
       bellRef.current = new AudioContext();
     }
+
+    if (pendingBell) {
+      if (state.phase === "rest") {
+        playBell();
+        setTimeout(() => playBell(), 300);
+      } else {
+        playBell();
+      }
+      setPendingBell(false);
+    }
+
   }
 
   function pause() {
@@ -116,6 +128,7 @@ export default function App() {
 
   function reset() {
     setIsRunning(false);
+    setPendingBell(false);
     // Dispatch sets all the states in one
     dispatch({type: "RESET"});
   }
@@ -124,12 +137,21 @@ export default function App() {
     const validatedValue = Math.max(1, value);
     setFightDuration(validatedValue);
     dispatch({ type: "SYNC_SETTINGS", fightDuration: validatedValue, restDuration });
+
+    if (!isRunning && (state.phase === "idle" || state.phase === "fight")) {
+      setPendingBell(true);
+    }
+
   }
 
   function handleRestDurationChange(value) {
     const validatedValue = Math.max(1, value);
     setRestDuration(validatedValue);
     dispatch({ type: "SYNC_SETTINGS", fightDuration, restDuration: validatedValue });
+
+    if (!isRunning && state.phase === "rest") {
+      setPendingBell(true);
+    }
   }
 
   // Rounds does not need a dispatch - the value is not copied to the state variable
