@@ -13,4 +13,6 @@ A boxing round timer built with React. Designed for fighters and coaches to mana
 - React
 - Vite
 
+## Database ERD 
+
 ![Database ERD Diagram](./docs/design/database_erd.png)
