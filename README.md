@@ -12,3 +12,5 @@ A boxing round timer built with React. Designed for fighters and coaches to mana
 ## Tech Stack
 - React
 - Vite
+
+![Database ERD Diagram](./docs/design/database_erd.png)
