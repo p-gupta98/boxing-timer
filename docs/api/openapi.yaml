@@ -3,7 +3,7 @@ info:
   title: Boxing Timer API
   version: '1.0.0'
   description: |
-    The Boxing Timer API allows you to create continuous timer for your boxing practice mimicking a boxing match.
+    The Boxing Timer API allows you to create and save timer presets in your account, and save sessions when you use presets.
 
     ### Check out its awesome features:
 
@@ -15,6 +15,9 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local development
+
+security:
+  - bearerAuth: []    
 
 paths:
   /presets:
@@ -29,6 +32,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Preset"
+        "401":
+          $ref: "#/components/responses/Unauthorized"          
 
     post:
       summary: Create a preset
@@ -45,7 +50,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Preset"
-
+        "401":
+          $ref: "#/components/responses/Unauthorized"  
         "400":
           description: Invalid input
           content:
@@ -74,6 +80,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Preset"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          $ref: "#/components/responses/Unauthorized"        
         "404":
           description: Preset not found
           content:
@@ -91,27 +105,50 @@ paths:
       responses:
         "204":
           description: Deleted (no body)
+        "401":
+          $ref: "#/components/responses/Unauthorized"    
         "404":
           description: Preset not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /users:
-    get:
-      summary: List all users
+
+  /login:
+    post:
+      summary: Log in a user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
       responses:
         "200":
-          description: A list of all users
+          description: Login successful, returns a token
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Wrong email or password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
+
+  /users:
     post:
       summary: Create a user
+      security: []
       requestBody: 
         required: true
         content:
@@ -125,58 +162,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-
         "400":
           description: Invalid input
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "409":
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"        
 
-  /users/{id}:
-    put:
-      summary: Replace a user
-      parameters: 
-        - name: id
-          in: path
-          required: true
-          schema: { type: string }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NewUser"
+  /users/me:
+    get:
+      summary: View my account information
       responses:
         "200":
-          description: The updated user
+          description: The logged-in user
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-    delete:
-      summary: Delete a user
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: string }
-      responses:
-        "204":
-          description: Deleted (no body)
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+        "401":
+          $ref: "#/components/responses/Unauthorized"              
 
   /sessions:
     get:
@@ -190,7 +200,8 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Session"
-
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       summary: Create a session
       requestBody: 
@@ -206,7 +217,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
-
+        "401":
+          $ref: "#/components/responses/Unauthorized"  
         "400":
           description: Invalid input
           content:
@@ -229,6 +241,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Unauthorized"        
         "404":
           description: Session not found
           content:
@@ -237,14 +251,28 @@ paths:
                 $ref: "#/components/schemas/Error"
 
 components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
   schemas:
     Preset:
       type: object
-      required: [name, fight_duration, rest_duration, total_rounds]
+      required: [id, name, fight_duration, rest_duration, total_rounds]
       properties:
+        id: { type: string }
         name: { type: string }
-        fight_duration: { type: integer, minimum: 1 }
-        rest_duration: { type: integer, minimum: 1 }
+        fight_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        rest_duration: { type: integer, minimum: 1, description: Duration in seconds }
         total_rounds: { type: integer, minimum: 1 }
 
     NewPreset:
@@ -252,45 +280,71 @@ components:
       required: [name, fight_duration, rest_duration, total_rounds]
       properties: 
         name: { type: string }
-        fight_duration: { type: integer, minimum: 1 }
-        rest_duration: { type: integer, minimum: 1 }
+        fight_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        rest_duration: { type: integer, minimum: 1, description: Duration in seconds }
         total_rounds: { type: integer, minimum: 1 }
 
     User:
       type: object
-      required: [name, email, password]
+      required: [id, name, email]
       properties:
+        id: { type: string }
         name: { type: string }
         email: { type: string }
-        password: { type: string }
 
     NewUser:
       type: object
       required: [name, email, password]
       properties:
         name: { type: string }
-        email: { type: string }
-        password: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
 
     Session:
       type: object
-      required: [name, date]
+      required: [id, name, date, fight_duration, rest_duration, total_rounds, rounds_completed, session_completed]
       properties:
+        id: { type: string }
         name: { type: string }
-        date: { type: object }
+        date: { type: string, format: date-time }
+        fight_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        rest_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        total_rounds: { type: integer, minimum: 1 }
+        rounds_completed: { type: integer, minimum: 0 }
+        session_completed: { type: boolean }
+        preset_id: { type: string }
 
     NewSession:
       type: object
-      required: [name, email, password]
+      required: [name, date, fight_duration, rest_duration, total_rounds, rounds_completed, session_completed]
       properties:
         name: { type: string }
-        date: { type: object }    
+        date: { type: string, format: date-time }
+        fight_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        rest_duration: { type: integer, minimum: 1, description: Duration in seconds }
+        total_rounds: { type: integer, minimum: 1 }
+        rounds_completed: { type: integer, minimum: 0 }
+        session_completed: { type: boolean }
+        preset_id: { type: string }    
 
     Error:
       type: object
       required: [message]
       properties:
-        message: { type: string }
+        message: { type: string, example: "Preset not found" }
+
+    Login:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string }
+        password: { type: string }
+
+    LoginResponse:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string }    
 
 
         
