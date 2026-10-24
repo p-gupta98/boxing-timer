@@ -70,6 +70,9 @@
 | `GET /sessions/{id}` | own session | `200` |
 | `GET /sessions/{id}` | another user's session | `404` |
 
+**General rule:** every protected endpoint returns `401` without a valid token, so each endpoint's integration tests include a no-token case.
+
+
 ## 6. Folder Structure & Naming
 ```
 tests/
