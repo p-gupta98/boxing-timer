@@ -1,0 +1,34 @@
+# Always ignore system-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node.js / Frontend dependencies
+node_modules/
+dist/
+build/
+.npm
+package-lock.json (optional, depend on preference)
+
+
+# Environment secrets / Credentials
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
