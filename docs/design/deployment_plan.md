@@ -20,6 +20,7 @@
 - Backend host: Render
 - Database host: Neon
 - Frontend host: Vercel
+- Live URL: https://boxing-timer-api.onrender.com/
 
 Changes recorded in ADR # 0007
 
